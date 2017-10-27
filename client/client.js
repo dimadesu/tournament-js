@@ -12,8 +12,8 @@ startButtonEl.addEventListener('click', () => {
   );
 
   tournament.fetch().then(() => {
-    teamsEl.innerHTML = tournament.teams
-      .map(team => `<p>${team.name} - ■ □</p>`)
-      .join('');
+    teamsEl.innerHTML = tournament.renderTeamsHtml();
+
+    tournament.runRound();
   });
 });

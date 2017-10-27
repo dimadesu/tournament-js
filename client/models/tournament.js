@@ -1,4 +1,5 @@
 import {Team} from './team.js';
+import {Match} from './match.js';
 
 export class Tournament {
   constructor(numberOfTeams, teamsPerMatch, options) {
@@ -54,6 +55,37 @@ export class Tournament {
         .then((teams) => {
           this.teams = teams;
         });
+    });
+  }
+
+  renderTeamsHtml(){
+    return this.teams
+      .map(team => `<p>${team.name} - ■ □</p>`)
+      .join('');
+  }
+
+  runRound(){
+    return this.fetchMatches().then(() => {
+      debugger;
+      this.matches
+      this.teams
+    });
+  }
+
+  fetchMatches(){
+    return Promise.all(
+      this.firstRoundMatchUps.map(match => {
+        return new Match(
+          this.tournamentId,
+          0,// round id
+          match.match
+        )
+        .fetch();
+      })
+    )
+    .then((matches) => {
+      debugger;
+      this.matches = matches;
     });
   }
 }
