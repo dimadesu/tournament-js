@@ -7,7 +7,7 @@ module.exports = function (configuration) {
     exclude: [
     ],
     files: [
-      '../../client/**/*.js',
+      // '../../client/**/*.js',
       '../../test/karma/**/*_test.js'
     ],
     frameworks: [

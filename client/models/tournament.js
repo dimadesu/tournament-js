@@ -2,6 +2,8 @@ import {Team} from './team.js';
 
 export class Tournament {
   constructor(numberOfTeams, teamsPerMatch, options) {
+    this.numberOfTeams = numberOfTeams;
+    this.teamsPerMatch = teamsPerMatch;
     this.tournamentId = null;
     /*
     [
@@ -19,15 +21,17 @@ export class Tournament {
     this.teams = [];
 
     this.currentRound = 0;
+  }
 
-    fetch(
+  fetch(){
+    return fetch(
       '/tournament',
       {
         method: 'post',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
         },
-        body: `numberOfTeams=${numberOfTeams}&teamsPerMatch=${teamsPerMatch}`,
+        body: `numberOfTeams=${this.numberOfTeams}&teamsPerMatch=${this.teamsPerMatch}`,
       }
     )
     .then(response => response.json())
@@ -42,14 +46,14 @@ export class Tournament {
         return nextTeamIds;
       }, []);
 
-      Promise.all(
-        teamIds.map((teamId)=> {
-          return new Team(this.tournamentId, teamId).fetch();
-        })
-      )
-      .then((teams) => {
-        this.teams = teams;
-      });
+      return Promise.all(
+          teamIds.map((teamId)=> {
+            return new Team(this.tournamentId, teamId).fetch();
+          })
+        )
+        .then((teams) => {
+          this.teams = teams;
+        });
     });
   }
 }
