@@ -1,8 +1,8 @@
+import {Team} from './team.js';
+
 export class Tournament {
   constructor(numberOfTeams, teamsPerMatch, options) {
-    this.teams = [];
-    this.matches = [];
-    // Format
+    this.tournamentId = null;
     /*
     [
       {
@@ -16,11 +16,12 @@ export class Tournament {
     ]
     */
     this.firstRoundMatchUps = [];
-    this.url = '/tournament';
-    this.tournamentId = null;
+    this.teams = [];
+
+    this.currentRound = 0;
 
     fetch(
-      this.url,
+      '/tournament',
       {
         method: 'post',
         headers: {
@@ -31,7 +32,24 @@ export class Tournament {
     )
     .then(response => response.json())
     .then((data) => {
+      this.tournamentId = data.tournamentId;
       this.firstRoundMatchUps = data.matchUps;
+
+      // TODO: could be an overkill and not performant, but at least compact
+      const teamIds = this.firstRoundMatchUps.reduce((teamIds, match) => {
+        const nextTeamIds = [...teamIds, ...match.teamIds];
+
+        return nextTeamIds;
+      }, []);
+
+      Promise.all(
+        teamIds.map((teamId)=> {
+          return new Team(this.tournamentId, teamId).fetch();
+        })
+      )
+      .then((teams) => {
+        this.teams = teams;
+      });
     });
   }
 }
