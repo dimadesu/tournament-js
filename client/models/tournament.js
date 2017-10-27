@@ -66,8 +66,30 @@ export class Tournament {
 
   runRound(){
     return this.fetchMatches().then(() => {
-      debugger;
-      this.matches
+      this.matches.map((match) => {
+        const matchTeams = match.teamIds.map((teamId) => {
+          return this.teams.find(team => team.teamId === teamId);
+        });
+
+        fetch(
+          `/winner?tournamentId=${this.tournamentId}&matchScore=${match.score}` +
+          matchTeams.map(team => `&teamScores=${team.score}`).join('')
+        )
+        .then(response => response.json())
+        .then((data) => {
+          debugger;
+          data.score;
+
+          // Match score to team
+          const winningTeam = matchTeams.find((team) => {
+            return team.score === data.score;
+          });
+
+          winningTeam.matches = [true, false];
+
+          // TODO: implement the case when score is the same in both teams
+        });
+      });
       this.teams
     });
   }
@@ -78,13 +100,13 @@ export class Tournament {
         return new Match(
           this.tournamentId,
           0,// round id
-          match.match
+          match.match,
+          match.teamIds
         )
         .fetch();
       })
     )
     .then((matches) => {
-      debugger;
       this.matches = matches;
     });
   }

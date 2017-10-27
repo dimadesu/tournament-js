@@ -2,11 +2,13 @@ export class Match {
   constructor(
     tournamentId,
     roundId,
-    matchId
+    matchId,
+    teamIds
   ) {
     this.tournamentId = tournamentId;
     this.roundId = roundId;
     this.matchId = matchId;
+    this.teamIds = teamIds;
   }
 
   fetch(){
