@@ -23,9 +23,16 @@ export class Tournament {
     this.teams = [];
 
     this.currentRound = 0;
+
+    // UI
+    this.teamsEl = document.getElementById('teams');
+    this.winnerEl = document.getElementById('winner');
   }
 
   postTournamentFetchTeamsAndMatches(){
+    this.teamsEl.innerHTML = '<p>Loading tournament and team details...</p>';
+    this.winnerEl.textContent = '';// Reset winner on tournament start, makes sense starting 2nd run
+
     return fetch(
       '/tournament',
       {
@@ -46,7 +53,10 @@ export class Tournament {
           this._fetchTeams(),
           this._fetchFirstRoundMatches()
         ]
-      );
+      ).then(() => {
+        // Render teams
+        this.teamsEl.innerHTML = this.renderTeamsHtml();
+      });
     });
   }
 
@@ -100,6 +110,27 @@ export class Tournament {
       .join('');
   }
 
+  // Recursively runs tournament rounds until winner is determined
+  runTournamentRound (){
+    this._runCurrentRoundMatches().then(() => {
+      // Render current round results
+      this.teamsEl.innerHTML = this.renderTeamsHtml();
+      
+      // Tournament winner determined
+      if (this.matches[this.currentRound].length === 1) {
+        this.winnerEl.textContent = this.matches[this.currentRound][0].winnerTeam.name;
+      // Next round exists
+      } else {
+        // Create and run next round
+        this._createNextMatches().then(() => {
+          this.currentRound++;
+
+          this.runTournamentRound();
+        });
+      }
+    });
+  }
+
   _renderTeamMatches(team) {
     const matchResultsAsBooleans = team.matches.map(match => {
       return Team._utilDidTeamWinMatch(
@@ -113,7 +144,7 @@ export class Tournament {
     }).join(' ');
   }
 
-  runCurrentRoundMatches(){
+  _runCurrentRoundMatches(){
     return Promise.all(
       this.matches[this.currentRound].map((match) => {
         return match.determineWinner();
@@ -121,7 +152,7 @@ export class Tournament {
     );
   }
 
-  createNextMatches(){
+  _createNextMatches(){
     const nextMatchTeams = this.matches[this.currentRound].map((match) => match.winnerTeam);
 
     const nextMatches = [];
