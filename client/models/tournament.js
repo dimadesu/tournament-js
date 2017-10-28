@@ -25,7 +25,7 @@ export class Tournament {
     this.currentRound = 0;
   }
 
-  postTournamentFetchMatchesAndTeams(){
+  postTournamentFetchTeamsAndMatches(){
     return fetch(
       '/tournament',
       {
@@ -41,11 +41,12 @@ export class Tournament {
       this.tournamentId = data.tournamentId;
       this.firstRoundMatchUps = data.matchUps;
 
-      return this._fetchTeams().then(() => {
-
-        return this._fetchFirstRoundMatches();
-
-      });
+      return Promise.all(
+        [
+          this._fetchTeams(),
+          this._fetchFirstRoundMatches()
+        ]
+      );
     });
   }
 
@@ -68,45 +69,22 @@ export class Tournament {
   }
 
   _fetchFirstRoundMatches(){
-    const matches = this.firstRoundMatchUps.map(match => {
-      return {
-        matchId: match.match,
-        teamIds: match.teamIds,
-      };
+    const matchPromises = this.firstRoundMatchUps.map(match => {
+      return new Match(
+        this,
+        this.tournamentId,
+        this.currentRound,
+        match.match,// matchId
+        match.teamIds
+      )
+      .fetch();
     });
 
-    return this._fetchMatches(matches)
-      .then((matches) => {
+    return Promise.all(
+        matchPromises
+      ).then((matches) => {
         this.matches[0] = matches;
       });
-  }
-
-  // matchesArray expected format:
-  /*
-  [
-    {
-      matchId: 0,
-      teamIds: [0,1]
-    },
-    {
-      matchId: 1,
-      teamIds: [2,3]
-    },
-  ]
-  */
-  _fetchMatches(matchesArray){
-    return Promise.all(
-      matchesArray.map((match) => {
-        return new Match(
-          this,
-          this.tournamentId,
-          this.currentRound,
-          match.matchId,
-          match.teamIds
-        )
-        .fetch();
-      })
-    );
   }
 
   renderTeamsHtml(){

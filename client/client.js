@@ -10,6 +10,7 @@ const winnerEl = document.getElementById('winner');
 function runRound (tournament){
   tournament.runCurrentRoundMatches()
   .then(() => {
+    // Render current round results
     teamsEl.innerHTML = tournament.renderTeamsHtml();
     
     // Tournament winner determined
@@ -17,6 +18,7 @@ function runRound (tournament){
       winnerEl.textContent = tournament.matches[tournament.currentRound][0].winnerTeam.name;
     // Next round exists
     } else {
+      // Create and run next round
       tournament.createNextMatches().then(() => {
         tournament.currentRound++;
 
@@ -34,7 +36,7 @@ startButtonEl.addEventListener('click', () => {
     parseInt(teamsPerMatchEl.value, 10),
   );
 
-  tournament.postTournamentFetchMatchesAndTeams()
+  tournament.postTournamentFetchTeamsAndMatches()
   .then(() => {
     // Render teams
     teamsEl.innerHTML = tournament.renderTeamsHtml();
