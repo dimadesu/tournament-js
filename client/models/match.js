@@ -39,13 +39,28 @@ export class Match {
     .then(response => response.json())
     .then((data) => {
       // Match score to team
-      this.winnerTeam = matchTeams.find((team) => {
+      const winnerTeams = matchTeams.filter((team) => {
         return team.score === data.score;
       });
+      
+      // In the event of a tie, the team with the lowest ID wins
+      if (winnerTeams.length === 1) {
+        this.winnerTeam = winnerTeams[0];
+      } else if (winnerTeams.length > 0) {
+        this.winnerTeam = winnerTeams.reduce((prevTeam, team) => {
+          if (!prevTeam) {
+            return team;
+          } else {
+            if (prevTeam.teamId < team.teamId) {
+              return prevTeam;
+            } else {
+              return team;
+            }
+          }
+        });// the lower the index the lower the team id is
+      }
 
       this.loserTeams = matchTeams.filter(team => team.teamId !== this.winnerTeam.teamId);
-      
-      // TODO: implement the case when score is the same in both teams
 
       this.winnerTeam.matches.push(this);
 
