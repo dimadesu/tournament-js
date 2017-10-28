@@ -57,7 +57,7 @@ export class Match {
               return team;
             }
           }
-        });// the lower the index the lower the team id is
+        });
       }
 
       this.loserTeams = matchTeams.filter(team => team.teamId !== this.winnerTeam.teamId);
