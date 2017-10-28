@@ -11,17 +11,25 @@ startButtonEl.addEventListener('click', () => {
     parseInt(teamsPerMatchEl.value, 10),
   );
 
-  tournament.fetch().then(() => {
+  tournament.fetch()
+  .then(() => {
+    // Render teams
     teamsEl.innerHTML = tournament.renderTeamsHtml();
 
-    tournament.runCurrentMatches()
+    tournament.runCurrentRoundMatches()
       .then(() => {
         teamsEl.innerHTML = tournament.renderTeamsHtml();
 
-        // tournament.runCurrentMatches()
-        // .then(() => {
-        //   teamsEl.innerHTML = tournament.renderTeamsHtml();
-        // });
+        tournament.createNextMatches().then(() => {
+
+          tournament.currentRound++;
+
+          tournament.runCurrentRoundMatches()
+          .then(() => {
+            teamsEl.innerHTML = tournament.renderTeamsHtml();
+          });
+
+        });
       });
   });
 });

@@ -19,8 +19,7 @@ export class Tournament {
     ]
     */
     this.firstRoundMatchUps = [];
-    this.currentMatches = [];
-    this.nextMatches = [];
+    this.matches = [];
     this.teams = [];
 
     this.currentRound = 0;
@@ -59,7 +58,7 @@ export class Tournament {
 
           return this._fetchFirstRoundMatches()
             .then((matches) => {
-              this.currentMatches = matches;
+              this.matches[0] = matches;
             });
         });
     });
@@ -95,7 +94,7 @@ export class Tournament {
         return new Match(
           this,
           this.tournamentId,
-          0,// round id
+          this.currentRound,
           match.matchId,
           match.teamIds
         )
@@ -111,7 +110,6 @@ export class Tournament {
   }
 
   _renderTeamMatches(team) {
-    
     const matchResultsAsBooleans = team.matches.map(match => {
       return Team._utilDidTeamWinMatch(
         team,
@@ -124,11 +122,46 @@ export class Tournament {
     }).join(' ');
   }
 
-  runCurrentMatches(){
+  runCurrentRoundMatches(){
     return Promise.all(
-      this.currentMatches.map((match) => {
+      this.matches[this.currentRound].map((match) => {
         return match.determineWinner();
       })
+    );
+  }
+
+  createNextMatches(){
+    const nextMatchTeams = this.matches[this.currentRound].map((match) => match.winnerTeam);
+
+    const nextMatches = [];
+    let tempMatch = new Match(
+      this,
+      this.tournamentId,
+      this.currentRound + 1,
+      nextMatches.length,// match id is just index
+      []// teamIds
+    );
+
+    nextMatchTeams.map((team) => {
+      tempMatch.teamIds.push(team.teamId);
+
+      if (tempMatch.teamIds.length === this.teamsPerMatch) {
+        nextMatches.push(tempMatch);
+
+        tempMatch = new Match(
+          this,
+          this.tournamentId,
+          this.currentRound + 1,// match id is just index
+          nextMatches.length,// match id is just index
+          []// teamIds
+        );
+      }
+    });
+
+    this.matches[this.currentRound + 1] = nextMatches;
+
+    return Promise.all(
+      nextMatches.map(match => match.fetch())
     );
   }
 }
