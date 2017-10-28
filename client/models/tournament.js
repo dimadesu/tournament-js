@@ -89,7 +89,14 @@ export class Tournament {
 
   renderTeamsHtml(){
     return this.teams
-      .map(team => `<p>${team.name} - ${this._renderTeamMatches(team)}</p>`)
+      .map(team => `
+        <div>
+          <p>
+            ${team.name}<br/>
+            ${this._renderTeamMatches(team)}
+          </p>
+        </div>
+      `)
       .join('');
   }
 
