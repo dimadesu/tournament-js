@@ -2,7 +2,7 @@ import {Team} from './team.js';
 import {Match} from './match.js';
 
 export class Tournament {
-  constructor(numberOfTeams, teamsPerMatch, options) {
+  constructor(numberOfTeams, teamsPerMatch) {
     this.numberOfTeams = numberOfTeams;
     this.teamsPerMatch = teamsPerMatch;
     this.tournamentId = null;
@@ -27,6 +27,11 @@ export class Tournament {
     // UI
     this.teamsEl = document.getElementById('teams');
     this.winnerEl = document.getElementById('winner');
+
+    // TODO: distinction between private (prefixed with underscore) and public methods lost meaning after this was moved here
+    this.postTournamentFetchTeamsAndMatches().then(() => {
+      this.runTournamentRound();
+    });
   }
 
   postTournamentFetchTeamsAndMatches(){
