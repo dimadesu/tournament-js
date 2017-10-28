@@ -7,9 +7,8 @@ const teamsEl = document.getElementById('teams');
 const winnerEl = document.getElementById('winner');
 
 // Recursively runs tournament rounds until winner is determined
-function runRound (tournament){
-  tournament.runCurrentRoundMatches()
-  .then(() => {
+function runTournamentRound (tournament){
+  tournament.runCurrentRoundMatches().then(() => {
     // Render current round results
     teamsEl.innerHTML = tournament.renderTeamsHtml();
     
@@ -22,25 +21,26 @@ function runRound (tournament){
       tournament.createNextMatches().then(() => {
         tournament.currentRound++;
 
-        runRound(tournament);
+        runTournamentRound(tournament);
       });
     }
   });
 }
 
-startButtonEl.addEventListener('click', () => {
-  teamsEl.innerHTML = '<p>Loading tournament and team details...</p>';
-
+startButtonEl.addEventListener('click', function createAndRunTournament () {
   const tournament = new Tournament(
     parseInt(numberOfTeamsEl.value, 10),
     parseInt(teamsPerMatchEl.value, 10),
   );
+
+  teamsEl.innerHTML = '<p>Loading tournament and team details...</p>';
+  winnerEl.textContent = '';// Reset winner on tournament start, makes sense starting 2nd run
 
   tournament.postTournamentFetchTeamsAndMatches()
   .then(() => {
     // Render teams
     teamsEl.innerHTML = tournament.renderTeamsHtml();
 
-    runRound(tournament);
+    runTournamentRound(tournament);
   });
 });
