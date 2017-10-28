@@ -11,7 +11,8 @@ export class Match {
     this.roundId = roundId;
     this.matchId = matchId;
     this.teamIds = teamIds;
-    this.winnerTeamId = null;
+    this.winnerTeam = null;
+    this.loserTeams = [];
   }
 
   fetch(){
@@ -38,15 +39,19 @@ export class Match {
     .then(response => response.json())
     .then((data) => {
       // Match score to team
-      const winningTeam = matchTeams.find((team) => {
+      this.winnerTeam = matchTeams.find((team) => {
         return team.score === data.score;
       });
 
-      debugger;
-
-      winningTeam.matches = [true, false];
-
+      this.loserTeams = matchTeams.filter(team => team.teamId !== this.winnerTeam.teamId);
+      
       // TODO: implement the case when score is the same in both teams
+
+      this.winnerTeam.matches.push(this);
+
+      this.loserTeams.forEach(
+        loserTeam => loserTeam.matches.push(this)
+      );
     });
   }
 }

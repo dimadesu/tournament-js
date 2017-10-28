@@ -4,6 +4,7 @@ export class Team {
     this.teamId = teamId;
     this.name = null;
     this.score = null;
+    this.matches = [];
   }
 
   fetch(){
@@ -17,5 +18,12 @@ export class Team {
 
       return this;
     });
+  }
+  
+  static _utilDidTeamWinMatch(
+    team,
+    match
+  ){
+    return match.winnerTeam.teamId === team.teamId;
   }
 }

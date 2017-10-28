@@ -14,6 +14,14 @@ startButtonEl.addEventListener('click', () => {
   tournament.fetch().then(() => {
     teamsEl.innerHTML = tournament.renderTeamsHtml();
 
-    tournament.runCurrentMatches();
+    tournament.runCurrentMatches()
+      .then(() => {
+        teamsEl.innerHTML = tournament.renderTeamsHtml();
+
+        // tournament.runCurrentMatches()
+        // .then(() => {
+        //   teamsEl.innerHTML = tournament.renderTeamsHtml();
+        // });
+      });
   });
 });

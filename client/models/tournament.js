@@ -106,13 +106,29 @@ export class Tournament {
 
   renderTeamsHtml(){
     return this.teams
-      .map(team => `<p>${team.name} - ■ □</p>`)
+      .map(team => `<p>${team.name} - ${this._renderTeamMatches(team)}</p>`)
       .join('');
   }
 
-  runCurrentMatches(){
-    return this.currentMatches.map((match) => {
-      match.determineWinner();
+  _renderTeamMatches(team) {
+    
+    const matchResultsAsBooleans = team.matches.map(match => {
+      return Team._utilDidTeamWinMatch(
+        team,
+        match
+      );
     });
+    
+    return matchResultsAsBooleans.map((isWin) => {
+      return isWin ? '■' : '□';
+    }).join(' ');
+  }
+
+  runCurrentMatches(){
+    return Promise.all(
+      this.currentMatches.map((match) => {
+        return match.determineWinner();
+      })
+    );
   }
 }
