@@ -30,6 +30,7 @@ export class Tournament {
 
     // TODO: distinction between private (prefixed with underscore) and public methods lost meaning after this was moved here
     this.postTournamentFetchTeamsAndMatches().then(() => {
+      // Runs rounds recursively
       this.runTournamentRound();
     });
   }
@@ -60,7 +61,7 @@ export class Tournament {
         ]
       ).then(() => {
         // Render teams
-        this.teamsEl.innerHTML = this.renderTeamsHtml();
+        this.renderTeamsAndRoundResults();
       });
     });
   }
@@ -102,24 +103,25 @@ export class Tournament {
       });
   }
 
-  renderTeamsHtml(){
-    return this.teams
-      .map(team => `
-        <div>
+  renderTeamsAndRoundResults(){
+    this.teamsEl.innerHTML = this.teams.map(team => {
+      return (
+        `<div>
           <p>
             ${team.name}<br/>
             ${this._renderTeamMatches(team)}
           </p>
-        </div>
-      `)
-      .join('');
+        </div>`
+      );
+    })
+    .join('');
   }
 
   // Recursively runs tournament rounds until winner is determined
   runTournamentRound (){
     this._runCurrentRoundMatches().then(() => {
       // Render current round results
-      this.teamsEl.innerHTML = this.renderTeamsHtml();
+      this.renderTeamsAndRoundResults();
       
       // Tournament winner determined
       if (this.matches[this.currentRound].length === 1) {
